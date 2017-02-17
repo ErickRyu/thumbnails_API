@@ -1,18 +1,19 @@
 # thumbnails_API
 
-## Usage
-```$ npm install phantomjs```<br/>
-```$ npm install express```<br/>
-```$ node router.js```<br/>
+## Install
+`$ npm install phantomjs`<br/>
+`$ npm install express`<br/>
+`$ npm install phantom`<br/>
+
 <br/><br/>
 
-### Make thumbnails
-localhost/thumbnails/?url=ENCODED_URI<br/>
+## Usage
+`$ node router.js`<br/>
 
 ### Get thumbnails as .png
-localhost/thumbnails/images/?url=ENCODED_URI<br/>
+`localhost/thumbnails/?url=ENCODED_URI`<br/>
 or<br/>
-localhost/thumbnails/images/?url=ENCODED_URI&mod=0<br/>
+`localhost/thumbnails/?url=ENCODED_URI&mod=0`<br/>
 
 ### Get thumbnails as base64
-localhost/thumbnails/images/?url=ENCODED_URI&mod=1<br/>
+`localhost/thumbnails/?url=ENCODED_URI&mod=1`<br/>
