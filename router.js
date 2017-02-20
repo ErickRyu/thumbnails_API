@@ -1,78 +1,51 @@
 var express = require('express');
 var app = express();
 var fs = require('fs')
-var async = require('async');
+const screenshot = require('screenshot-stream');
 
-var defaultTimeout = 8000;
+width = 1024;
+height = 468;
+
 
 app.get('/thumbnails', function(req, res) {
-	
+	var start = (new Date).getTime();
+
+
 	var url = req.query.url;
-	var mod = 0;
-	if(req.query.mod){
+	var mod = 'png';
+	if(req.query.mod)
 		mod = req.query.mod;
-	}
+	if(req.query.width)
+		width = req.query.width;
+	if(req.query.height)
+		height = req.query.height;
+
 	encodedURI = encodeURIComponent(url);
 	pathAndFile =  __dirname + '/' + encodedURI + '.png';
+
+	const stream = screenshot(url, width + 'x' + height, {crop: true});
 	
-	// Have to make it syncronously
-	
-	var phantom = require('phantom');
-	phantom.create().then(function(ph) {
-		var start = (new Date).getTime();
-		ph.createPage().then(function(page) {
-			page.open(url).then(function(status) {
-				console.log(status);
-				page.property('content').then(function(content) {
-					page.property('viewportSize',{ width: 1024, height: 450 });
-					page.property('clipRect',{ top: 0, left: 0, width: 700, height: 450 });
-					page.render(pathAndFile).then(function(err,stdout){
-						if(mod == 0){
-							res.sendFile(pathAndFile);
-						}else if(mod == 1){
-							fs.readFile(pathAndFile, function(err, original_data){
-								// fs.writeFile('image_orig.jpg', original_data, function(err) {});
-								var base64Image = original_data.toString('base64');
-								// var decodedImage = new Buffer(base64Image, 'base64');
-								// fs.writeFile('image_decoded.jpg', decodedImage, function(err) {});
-								res.send(base64Image);
-							});
-						}
-						var end = (new Date).getTime();
-						console.log((end-start)/1000. + " elapsed");
-					});
-					page.close();
-					ph.exit();
-					
-				});
-			});
-		});
+	stream.on('error', function(err){
+		console.log('somthing wrong');
+		res.status(400).send("400");
+	})
+
+	stream.on('data', function(data) {
+		if(mod == 'png'){
+			res.write(data);
+
+		}else if(mod == 'base64'){
+			res.write(data.toString('base64'));
+		}			
 	});
 
-	// var promise = save(url, pathAndFile);
-	
-
-	
+	stream.on('end', function(){
+		var end = (new Date).getTime();
+		console.log((end-start)/1000. + " Elapsed");
+		res.end();
+	})
 });
 
-var save = function(url, pathAndFile){
-	var phantom = require('phantom');
-	phantom.create().then(function(ph) {
-		ph.createPage().then(function(page) {
-			page.open(url).then(function(status) {
-				console.log(status);
-				page.property('content').then(function(content) {
-					page.property('viewportSize',{ width: 1024, height: 740 });
-					page.property('clipRect',{ top: 0, left: 0, width: 700, height: 400 });
-					page.render(pathAndFile);
-					page.close();
-					ph.exit();
-					res.sendFile(pathAndFile);
-				});
-			});
-		});
-	});
-}
 var server = app.listen(8081, function () {
 	var host = server.address().address
 	var port = server.address().port
