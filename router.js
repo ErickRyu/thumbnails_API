@@ -1,10 +1,8 @@
+const screenshot = require('screenshot-stream');
 var express = require('express');
 var app = express();
-var fs = require('fs')
-const screenshot = require('screenshot-stream');
-
-width = 1024;
-height = 468;
+var width = 1024;
+var height = 468;
 
 
 app.get('/thumbnails', function(req, res) {
@@ -20,25 +18,26 @@ app.get('/thumbnails', function(req, res) {
 	if(req.query.height)
 		height = req.query.height;
 
-	encodedURI = encodeURIComponent(url);
-	pathAndFile =  __dirname + '/' + encodedURI + '.png';
-
 	const stream = screenshot(url, width + 'x' + height, {crop: true});
 	
 	stream.on('error', function(err){
 		console.log('somthing wrong');
-		res.status(400).send("400");
+		res.status(400).send(err);
 	})
 
-	stream.on('data', function(data) {
-		if(mod == 'png'){
+	if(mod == 'png'){
+		stream.on('data', function(data){
 			res.write(data);
-
-		}else if(mod == 'base64'){
+		})
+	}else if(mod == 'base64'){
+		stream.on('data', function(data){
 			res.write(data.toString('base64'));
-		}			
-	});
-
+		})
+	}else {
+		res.status(400);
+		res.send('wrong mod');
+	}
+	
 	stream.on('end', function(){
 		var end = (new Date).getTime();
 		console.log((end-start)/1000. + " Elapsed");
@@ -50,6 +49,6 @@ var server = app.listen(8081, function () {
 	var host = server.address().address
 	var port = server.address().port
 
-	console.log("Example app listening at http://%s:%s", host, port)
+	console.log("Thumbnails app listening at http://%s:%s", host, port)
 })
 
