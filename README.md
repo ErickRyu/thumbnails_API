@@ -1,19 +1,24 @@
 # thumbnails_API
 
 ## Install
-`$ npm install phantomjs`<br/>
 `$ npm install express`<br/>
-`$ npm install phantom`<br/>
+`$ npm install screenshot-stream`<br/>
 
 <br/><br/>
 
 ## Usage
 `$ node router.js`<br/>
 
-### Get thumbnails as .png
-`localhost/thumbnails/?url=ENCODED_URI`<br/>
-or<br/>
-`localhost/thumbnails/?url=ENCODED_URI&mod=0`<br/>
+### Basing usage
+`localhost/thumbnails/?url=URL_TO_CAPTURE`<br/>
 
-### Get thumbnails as base64
-`localhost/thumbnails/?url=ENCODED_URI&mod=1`<br/>
+### Params
+| Query | Options | Result | 
+| ---- | ---- | ---- |
+| `url`<br/> require | Encoded or Not Encoded URL  |  |
+| mod | `png`<br/> `base64`<br/> | return png image <br/> return base64 code <br/> default : png |
+| width | number | crop width <br/> default : 1024 |
+| height | number | crop height <br/> default : 468 |
+
+### Example
+`localhost/thumbnails/?url=https://google.com&mod=base64&width=700&height=300`
