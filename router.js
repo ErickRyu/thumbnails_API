@@ -43,6 +43,9 @@ app.get('/thumbnails', function(req, res) {
 		console.log((end-start)/1000. + " Elapsed");
 		res.end();
 	})
+	stream.on('error', function(exc) {
+		console.error("ignoring exception " + exc);
+	});
 });
 
 var server = app.listen(8081, function () {
