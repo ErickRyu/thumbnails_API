@@ -1,0 +1,25 @@
+{
+  "name": "thumbnails_api",
+  "version": "1.0.0",
+  "description": "make thumbnails",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.14.1",
+    "phantomjs": "^2.1.7",
+    "screenshot-stream": "^4.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ErickRyu/thumbnails_API.git"
+  },
+  "author": "ErickRyu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ErickRyu/thumbnails_API/issues"
+  },
+  "homepage": "https://github.com/ErickRyu/thumbnails_API#readme"
+}
