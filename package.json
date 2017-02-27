@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "express": "^4.14.1",
+    "morgan": "^1.8.1",
     "phantomjs": "^2.1.7",
     "phantomjs-prebuilt": "^2.1.14",
     "screenshot-stream": "^4.1.0"

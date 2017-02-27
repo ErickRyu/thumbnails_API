@@ -1,11 +1,18 @@
 const screenshot = require('screenshot-stream');
 var express = require('express');
+var morgan = require('morgan');
 var app = express();
 module.exports = app;
+morgan.token('date', function() {
+    var p = new Date().toString().replace(/[A-Z]{3}\+/,'+').split(/ /);
+    return( p[2]+'/'+p[1]+'/'+p[3]+':'+p[4]+' '+p[5] );
+});
+var fs = require('fs');
+app.use(morgan('combined', {
+	stream: fs.createWriteStream('app.log', {'flags' :'w'})
+}));
 
 app.get('/thumbnails', function(req, res) {
-	var start = (new Date).getTime();
-
 	var url = req.query.url;
 
 	var mod = 'png';
@@ -56,8 +63,6 @@ app.get('/thumbnails', function(req, res) {
 	}
 	
 	stream.on('end', function(){
-		var end = (new Date).getTime();
-		console.log((end-start)/1000. + " Elapsed");
 		res.end();
 	})
 });
