@@ -1,7 +1,7 @@
 const screenshot = require('screenshot-stream');
 var express = require('express');
 var app = express();
-
+module.exports = app;
 
 app.get('/thumbnails', function(req, res) {
 	var start = (new Date).getTime();
@@ -10,7 +10,7 @@ app.get('/thumbnails', function(req, res) {
 
 	var mod = 'png';
 	var width = 1024;
-	var height = 468;
+	var height = 720;
 
 	// Query check
 	if(req.query.mod){

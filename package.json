@@ -6,11 +6,17 @@
   "dependencies": {
     "express": "^4.14.1",
     "phantomjs": "^2.1.7",
+    "phantomjs-prebuilt": "^2.1.14",
     "screenshot-stream": "^4.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "should": "^11.2.0",
+    "supertest": "^3.0.0"
+  },
   "scripts": {
-    "test": "mocha"
+    "start": "node index.js",
+    "test": "mocha test.js"
   },
   "repository": {
     "type": "git",
