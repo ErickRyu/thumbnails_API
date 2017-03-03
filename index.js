@@ -14,6 +14,11 @@ var storage = multer.diskStorage({
 })
 var upload = multer({storage: storage})
 var app = express();
+
+const defaultWidth = 1024;
+const defaultHeight = 720;
+
+// morgan config
 module.exports = app;
 morgan.token('date', function() {
     var p = new Date().toString().replace(/[A-Z]{3}\+/,'+').split(/ /);
@@ -26,57 +31,54 @@ app.use(morgan('combined', {
 app.get('/resize', function(req, res){
 	fs.readFile('upload.html', function(err, pgRes) {
 		if(err) throw err;
-		else
+		else{
 			res.write(pgRes);
+			res.end();
+		}
 	});
 });
 app.post('/resize', upload.single('image'), function(req,res,next){
-	console.log(req.body);
-	body = req.body;
-	width = parseInt(body.width);
-	height = parseInt(body.height);
-	mod = body.mod;
-	console.log(width);
-	console.log(height);
-	console.log(mod);
-	console.log(req.file);
-	filename = req.file.filename;
-	path = __dirname + "/my-uploads/" + filename;
-	console.log(path);
+	var body = req.body;
+	var width = parseInt(body.width);
+	var height = parseInt(body.height);
+	var mod = body.mod;
+
+	if(!isValidNumber(width))
+		width = defaultWidth;
+	if(!isValidNumber(height))
+		height = defaultHeight;
+	
+	var filename = req.file.filename;
+	var path = __dirname + "/my-uploads/" + filename;
+
   lwip.open(path, function(err, image){
 		image.resize(width, height, function(err, image) {
 			image.writeFile(path, function(err){
-				res.sendFile(path);
+				if(mod === 'base64'){
+					var file = fs.readFile(path, function(err, data){
+						res.send(data.toString('base64'));
+					});
+				}else
+					res.sendFile(path);
 			});
 		});
 	});
 });
-
 app.get('/thumbnails', function(req, res) {
-	var url = req.query.url;
-
 	var mod = 'png';
-	var width = 1024;
-	var height = 720;
 
+	var url = req.query.url;
 	// Query check
 	if(req.query.mod){
 		mod = req.query.mod;
 	}
-	if(req.query.width){
-		width = req.query.width;
-		if(isNaN(width)){
-			res.status(400).send("Width must be the nubmer");
-			res.end();
-		}
-	}
-	if(req.query.height){
-		height = req.query.height;		
-		if(isNaN(height)){
-			res.status(400).send("Height must be the nubmer");
-			res.end();
-		}
-	}
+	var width = req.query.width;
+	var height = req.query.height;
+	if(!isValidNumber(width))
+		width = defaultWidth;
+	if(!isValidNumber(height))
+		height = defaultHeight;
+	
 	var size = width+'x'+height;
 	const stream = screenshot(url, size, {crop: true});
 	
@@ -118,6 +120,13 @@ app.use(function(err, req, res, next) {
 });
 	
 
+var isValidNumber = function(num){
+	num = parseInt(num);
+	if(!Number.isInteger(num) || num == 0)
+		return false;
+	else
+		return true;
+};
 var server = app.listen(process.env.PORT||8081, function () {
 	var host = server.address().address
 	var port = server.address().port
