@@ -1,9 +1,11 @@
-const screenshot = require('screenshot-stream');
-var express = require('express');
-var morgan = require('morgan');
-var fs = require('fs');
+const screenshot = require('screenshot-stream')
+var createServer = require('auto-sni')
+var express = require('express')
+var morgan = require('morgan')
+var fs = require('fs')
 var multer = require('multer')
-var lwip = require('lwip');
+var cors = require('cors')
+var lwip = require('lwip')
 var storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, 'my-uploads/')
@@ -13,7 +15,7 @@ var storage = multer.diskStorage({
   }
 })
 var upload = multer({storage: storage})
-var app = express();
+var app = express()
 
 const defaultWidth = 1024;
 const defaultHeight = 720;
@@ -25,8 +27,10 @@ morgan.token('date', function() {
     return( p[2]+'/'+p[1]+'/'+p[3]+':'+p[4]+' '+p[5] );
 });
 app.use(morgan('combined', {
-	stream: fs.createWriteStream('app.log', {'flags' :'w'})
+	stream: fs.createWriteStream(__dirname + '/logs/' + Date.now() +'.log', {'flags' :'w'})
 }));
+
+app.use(cors());
 
 app.get('/resize', function(req, res){
 	fs.readFile('upload.html', function(err, pgRes) {
@@ -66,8 +70,9 @@ app.post('/resize', upload.single('image'), function(req,res,next){
 });
 app.get('/thumbnails', function(req, res) {
 	var mod = 'png';
-
+	var startTime = (new Date).getTime();
 	var url = req.query.url;
+	console.log(url);
 	// Query check
 	if(req.query.mod){
 		mod = req.query.mod;
@@ -105,6 +110,8 @@ app.get('/thumbnails', function(req, res) {
 	}
 	
 	stream.on('end', function(){
+		var endTime = (new Date).getTime();
+		console.log((endTime-startTime)/1000. + " Elapsed");
 		res.end();
 	})
 });
@@ -121,16 +128,31 @@ app.use(function(err, req, res, next) {
 	
 
 var isValidNumber = function(num){
-	num = parseInt(num);
-	if(!Number.isInteger(num) || num == 0)
+	if(isNaN(num)|| num == 0){
 		return false;
-	else
+	}else
 		return true;
 };
-var server = app.listen(process.env.PORT||8081, function () {
-	var host = server.address().address
-	var port = server.address().port
+//var server = app.listen(process.env.PORT||8081, function () {
+//	var port = server.address().port
+//
+//	console.log("Listening at localhost:%s", port)
+//})
 
-	console.log("Thumbnails app listening at http://%s:%s", host, port)
-})
+try{
+	createServer(
+		{
+			email:'sol-stibee@slowalk.co.kr',
+			agreeTos: true,
+			domains:["thumbnail.stibee.com"],
+			debug: false,
+			forceSSL: true,
+			ports: {
+				http:8081,
+				https:443
+			}
+		}, app);
+}catch(exception){
+	console.log(exception);
+}
 
